@@ -1,8 +1,8 @@
 package bmpserver
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
@@ -51,7 +51,7 @@ func (bmpServer *YooServer) run() {
 
 func (bmpServer *YooServer) worker(conn net.Conn) {
 	commonHeaderData := make([]byte, bmp.CommonHeaderLength)
-	_, err := bufio.NewReader(conn).Read(commonHeaderData)
+	_, err := io.ReadAtLeast(conn, commonHeaderData, bmp.CommonHeaderLength)
 	if err != nil {
 		log.Printf("Error: %+v", err.Error())
 		return
@@ -59,7 +59,9 @@ func (bmpServer *YooServer) worker(conn net.Conn) {
 	bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
 	fmt.Println(bmpHeader)
 	bmpBody := make([]byte, int(bmpHeader.MessageLength))
-	bufio.NewReader(conn).Read(bmpBody)
+	count, err := io.ReadFull(conn, bmpBody)
+	fmt.Println(count)
+	fmt.Println("===============")
 	fmt.Println(bmpBody)
 }
 
