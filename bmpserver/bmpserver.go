@@ -56,7 +56,7 @@ func (bmpServer *YooServer) worker(conn net.Conn) {
 		bmpHeader, handlerErr := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderMsg[:bmp.CommonHeaderLength])
 		if handlerErr != nil {
 			fmt.Println("parse header error: %+v", handlerErr)
-			return
+			continue
 		}
 		fmt.Println(bmpHeader)
 		fmt.Println(commonHeaderMsg[:bmp.CommonHeaderLength])
