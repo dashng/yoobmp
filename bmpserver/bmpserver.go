@@ -44,14 +44,14 @@ func (bmpServer *YooServer) run() {
 			log.Fatal(err)
 		}
 		for {
-			bmpServer.worker()
+			bmpServer.worker(conn)
 		}
 	}
 }
 
 func (bmpServer *YooServer) worker(conn net.Conn) {
 	commonHeaderData := make([]byte, bmp.CommonHeaderLength)
-	_, err = bufio.NewReader(conn).Read(commonHeaderData)
+	_, err := bufio.NewReader(conn).Read(commonHeaderData)
 	if err != nil {
 		log.Printf("Error: %+v", err.Error())
 		return
