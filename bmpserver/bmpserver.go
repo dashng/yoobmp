@@ -44,14 +44,14 @@ func (bmpServer *YooServer) run() {
 			log.Fatal(err)
 		}
 		for {
-			commonHeader := make([]byte, bmp.CommonHeaderLength)
-			_, err = bufio.NewReader(conn).Read(commonHeader)
+			commonHeaderData := make([]byte, bmp.CommonHeaderLength)
+			_, err = bufio.NewReader(conn).Read(commonHeaderData)
 			if err != nil {
 				log.Printf("Error: %+v", err.Error())
 				return
 			}
-			bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeader)
-			fmt.Println(bmpHeader.Serialize())
+			bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
+			fmt.Println(bmpHeader)
 		}
 	}
 }
