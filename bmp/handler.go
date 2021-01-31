@@ -10,5 +10,7 @@ type Handler struct {
 }
 
 func (bmpHandler *Handler) UnmarshalCommonHeader(headerData []byte) {
-	fmt.Println("===============", headerData)
+	header, _ := UnmarshalCommonHeader(headerData)
+	fmt.Println(headerData)
+	fmt.Println(header)
 }
