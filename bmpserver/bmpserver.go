@@ -13,6 +13,7 @@ import (
 type TCPServer interface {
 	run()
 	Handle(bmpHandle bmp.BmpHandler)
+	worker()
 }
 
 // YooServer listening to tcp port for receiving bmp data
@@ -44,19 +45,23 @@ func (bmpServer *YooServer) run() {
 			log.Fatal(err)
 		}
 		for {
-			commonHeaderData := make([]byte, bmp.CommonHeaderLength)
-			_, err = bufio.NewReader(conn).Read(commonHeaderData)
-			if err != nil {
-				log.Printf("Error: %+v", err.Error())
-				return
-			}
-			bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
-			fmt.Println(bmpHeader)
-			bmpBody := make([]byte, int(bmpHeader.MessageLength))
-			bufio.NewReader(conn).Read(bmpBody)
-			fmt.Println(bmpBody)
+			bmpServer.worker(conn)
 		}
 	}
+}
+
+func (bmpServer *YooServer) worker(conn net.Conn) {
+	commonHeaderData := make([]byte, bmp.CommonHeaderLength)
+	_, err := bufio.NewReader(conn).Read(commonHeaderData)
+	if err != nil {
+		log.Printf("Error: %+v", err.Error())
+		return
+	}
+	bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
+	fmt.Println(bmpHeader)
+	bmpBody := make([]byte, int(bmpHeader.MessageLength))
+	bufio.NewReader(conn).Read(bmpBody)
+	fmt.Println(bmpBody)
 }
 
 // Handle parse the received bmp data
