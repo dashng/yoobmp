@@ -13,7 +13,6 @@ import (
 type TCPServer interface {
 	run()
 	Handle(bmpHandle bmp.BmpHandler)
-	worker()
 }
 
 // YooServer listening to tcp port for receiving bmp data
@@ -45,14 +44,14 @@ func (bmpServer *YooServer) run() {
 			log.Fatal(err)
 		}
 		for {
-			bmpServer.worker(conn)
+			bmpServer.worker()
 		}
 	}
 }
 
 func (bmpServer *YooServer) worker(conn net.Conn) {
 	commonHeaderData := make([]byte, bmp.CommonHeaderLength)
-	_, err := bufio.NewReader(conn).Read(commonHeaderData)
+	_, err = bufio.NewReader(conn).Read(commonHeaderData)
 	if err != nil {
 		log.Printf("Error: %+v", err.Error())
 		return
