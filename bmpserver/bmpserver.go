@@ -39,7 +39,6 @@ func (bmpServer *YooServer) run() {
 			fmt.Println(err)
 			log.Fatal(err)
 		}
-		defer conn.Close()
 
 		fmt.Println("555555555555")
 		go bmpServer.worker(conn)
@@ -47,6 +46,7 @@ func (bmpServer *YooServer) run() {
 }
 
 func (bmpServer *YooServer) worker(conn net.Conn) {
+	defer conn.Close()
 	for {
 		commonHeaderMsg := make([]byte, bmp.CommonHeaderLength)
 		if _, err := io.ReadAtLeast(conn, commonHeaderMsg, bmp.CommonHeaderLength); err != nil {
