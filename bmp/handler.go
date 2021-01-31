@@ -1,16 +1,13 @@
 package bmp
 
-import "fmt"
-
 type BmpHandler interface {
-	UnmarshalCommonHeader(headerData []byte)
+	UnmarshalCommonHeader(headerData []byte) *CommonHeader
 }
 
 type Handler struct {
 }
 
-func (bmpHandler *Handler) UnmarshalCommonHeader(headerData []byte) {
-	header, _ := UnmarshalCommonHeader(headerData)
-	fmt.Println(headerData)
-	fmt.Println(header)
+func (bmpHandler *Handler) UnmarshalCommonHeader(headerData []byte) *CommonHeader {
+	bmpHeader, _ := UnmarshalCommonHeader(headerData)
+	return bmpHeader
 }
