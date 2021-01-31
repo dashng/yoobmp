@@ -52,6 +52,9 @@ func (bmpServer *YooServer) run() {
 			}
 			bmpHeader := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
 			fmt.Println(bmpHeader)
+			bmpBody := make([]byte, int(bmpHeader.MessageLength))
+			bufio.NewReader(conn).Read(bmpBody)
+			fmt.Println(bmpBody)
 		}
 	}
 }
