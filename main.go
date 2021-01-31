@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	server, _ := bmpserver.NewYooServer(32124)
+	server, _ := bmpserver.NewYooServer(32412)
 	server.Handle(&bmp.Handler{})
 }
