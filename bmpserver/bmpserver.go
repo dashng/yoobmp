@@ -58,9 +58,9 @@ func (bmpServer *YooServer) worker(conn net.Conn) {
 	}
 	bmpHeader, err := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
 	fmt.Println(bmpHeader)
-	bmpBody := make([]byte, int(bmpHeader.MessageLength))
-	bufio.NewReader(conn).Read(bmpBody)
-	fmt.Println(bmpBody)
+	// bmpBody := make([]byte, int(bmpHeader.MessageLength))
+	// bufio.NewReader(conn).Read(bmpBody)
+	// fmt.Println(bmpBody)
 }
 
 // Handle parse the received bmp data
