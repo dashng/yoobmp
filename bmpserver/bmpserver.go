@@ -44,7 +44,7 @@ func (bmpServer *YooServer) run() {
 			log.Fatal(err)
 		}
 		for {
-			bmpServer.worker(conn)
+			go bmpServer.worker(conn)
 		}
 	}
 }
