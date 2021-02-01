@@ -1,8 +1,8 @@
 package bmpserver
 
 import (
+	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net"
 
@@ -18,57 +18,54 @@ type TCPServer interface {
 // YooServer listening to tcp port for receiving bmp data
 type YooServer struct {
 	tcpPort          int32
-	tcpListener      net.Listener
+	tcpListener      net.TCPListener
 	commonHeaderData []byte
 	bmpHandler       bmp.BmpHandler
 }
 
-func (bmpServer *YooServer) getTCPListener(port int32) net.Listener {
-	client, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+func (bmpServer *YooServer) getTCPListener(port int32) *net.TCPListener {
+	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		panic(err)
+	}
+	l, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return client
+	return l
 }
 
 func (bmpServer *YooServer) run() {
-	// defer bmpServer.tcpListener.Close()
+	defer bmpServer.tcpListener.Close()
 	for {
 		conn, err := bmpServer.tcpListener.Accept()
 		if err != nil {
 			fmt.Println(err)
 			log.Fatal(err)
 		}
-		go bmpServer.worker(conn)
+		for {
+			bmpServer.worker(conn)
+		}
 	}
 }
 
 func (bmpServer *YooServer) worker(conn net.Conn) {
-	defer conn.Close()
-	for {
-		fmt.Println("============")
-		commonHeaderMsg := make([]byte, bmp.CommonHeaderLength)
-		if _, err := io.ReadAtLeast(conn, commonHeaderMsg, bmp.CommonHeaderLength); err != nil {
-			fmt.Println("fail to read from client %+v with error: %+v", conn.RemoteAddr(), err)
-			return
-		}
-		bmpHeader, handlerErr := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderMsg[:bmp.CommonHeaderLength])
-		if handlerErr != nil {
-			fmt.Println("parse header error: %+v", handlerErr)
-			return
-		}
-		fmt.Println(bmpHeader)
-		// fmt.Println(commonHeaderMsg[:bmp.CommonHeaderLength])
-		// bmpBody := make([]byte, bmpHeader.MessageLength)
-		// count, err := io.ReadFull(conn, bmpBody)
-		// fmt.Println(count)
-		// fmt.Println("===============")
-		// fmt.Println(bmpBody)
+	commonHeaderData := make([]byte, bmp.CommonHeaderLength)
+	_, err := bufio.NewReader(conn).Read(commonHeaderData)
+	if err != nil {
+		log.Printf("Error: %+v", err.Error())
+		return
 	}
+	bmpHeader, err := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderData)
+	fmt.Println(bmpHeader)
+	// bmpBody := make([]byte, int(bmpHeader.MessageLength))
+	// bufio.NewReader(conn).Read(bmpBody)
+	// fmt.Println(bmpBody)
 }
 
 // Handle parse the received bmp data
 func (bmpServer *YooServer) Handle(bmpHandler bmp.BmpHandler) {
+	fmt.Println(bmpHandler)
 	bmpServer.bmpHandler = bmpHandler
 	bmpServer.run()
 }
@@ -76,6 +73,6 @@ func (bmpServer *YooServer) Handle(bmpHandler bmp.BmpHandler) {
 // NewYooServer initialize YooServer
 func NewYooServer(port int32) (TCPServer, error) {
 	yooServer := YooServer{}
-	yooServer.tcpListener = yooServer.getTCPListener(port)
+	yooServer.tcpListener = *(yooServer.getTCPListener(port))
 	return &yooServer, nil
 }
