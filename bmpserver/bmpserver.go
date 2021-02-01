@@ -39,8 +39,6 @@ func (bmpServer *YooServer) run() {
 			fmt.Println(err)
 			log.Fatal(err)
 		}
-
-		fmt.Println("555555555555")
 		go bmpServer.worker(conn)
 	}
 }
@@ -48,6 +46,7 @@ func (bmpServer *YooServer) run() {
 func (bmpServer *YooServer) worker(conn net.Conn) {
 	defer conn.Close()
 	for {
+		fmt.Println("============")
 		commonHeaderMsg := make([]byte, bmp.CommonHeaderLength)
 		if _, err := io.ReadAtLeast(conn, commonHeaderMsg, bmp.CommonHeaderLength); err != nil {
 			fmt.Println("fail to read from client %+v with error: %+v", conn.RemoteAddr(), err)
@@ -56,10 +55,10 @@ func (bmpServer *YooServer) worker(conn net.Conn) {
 		bmpHeader, handlerErr := bmpServer.bmpHandler.UnmarshalCommonHeader(commonHeaderMsg[:bmp.CommonHeaderLength])
 		if handlerErr != nil {
 			fmt.Println("parse header error: %+v", handlerErr)
-			continue
+			return
 		}
 		fmt.Println(bmpHeader)
-		fmt.Println(commonHeaderMsg[:bmp.CommonHeaderLength])
+		// fmt.Println(commonHeaderMsg[:bmp.CommonHeaderLength])
 		// bmpBody := make([]byte, bmpHeader.MessageLength)
 		// count, err := io.ReadFull(conn, bmpBody)
 		// fmt.Println(count)
